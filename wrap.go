@@ -11,6 +11,8 @@ import (
 // If the error is nil, Wrap returns nil.
 // If the error is not an instance of ErrorX, then created New ErrorX with
 // type Internal and the err.Error() as a message.
+// You don't need to call Wrap after functions: New, AsInternal, FromPgxQuery, FromPgxExec, FromGRPC
+// because they already add a trace to the error.
 func Wrap(err error) error {
 	if err == nil {
 		return nil

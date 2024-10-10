@@ -21,12 +21,14 @@ const (
 
 // New creates a new ErrorX with the given type, code, and message.
 func New(errType Type, code string, msg string) *ErrorX {
-	return &ErrorX{
+	e := &ErrorX{
 		Code:    code,
 		Message: msg,
 		Type:    errType,
 		origin:  errors.New(msg),
 	}
+	e.addTrace()
+	return e
 }
 
 // ErrorX represents a structured error that can be used within an application.
@@ -96,4 +98,24 @@ func GetCode(err error) string {
 	}
 
 	return CodeInternal
+}
+
+// AsInternal takes an error and returns an ErrorX with type T_Internal if it needs to be transformed.
+// If the error is nil, it returns nil.
+func AsInternal(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	e, ok := err.(*ErrorX)
+	if !ok {
+		e = New(T_Internal, CodeInternal, err.Error())
+		e.addTrace()
+		return e
+	}
+
+	newErr := *e
+	newErr.Type = T_Internal
+	newErr.addTrace()
+	return &newErr
 }
