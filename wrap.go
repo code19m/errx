@@ -27,6 +27,21 @@ func Wrap(err error) error {
 	return e
 }
 
+// WrapWithDetails wraps an error with an ErrorX and adds details to it.
+func WrapWithDetails(err error, details M) error {
+	if err == nil {
+		return nil
+	}
+
+	e, ok := err.(*ErrorX)
+	if !ok {
+		e = New(T_Internal, CodeInternal, err.Error())
+	}
+
+	e.addTrace()
+	return e.WithDetails(details)
+}
+
 // addTrace appends the caller information of the function that invoked the function
 // that called addTrace to the error's trace field. This helps in tracking the chain
 // of function calls leading to the error, providing a detailed trace for debugging.
