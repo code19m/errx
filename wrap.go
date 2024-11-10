@@ -20,7 +20,12 @@ func Wrap(err error) error {
 
 	e, ok := err.(*ErrorX)
 	if !ok {
-		e = New(T_Internal, CodeInternal, err.Error())
+		e = &ErrorX{
+			Code:    CodeInternal,
+			Message: err.Error(),
+			Type:    T_Internal,
+			origin:  err,
+		}
 	}
 
 	e.addTrace()
@@ -35,7 +40,12 @@ func WrapWithDetails(err error, details M) error {
 
 	e, ok := err.(*ErrorX)
 	if !ok {
-		e = New(T_Internal, CodeInternal, err.Error())
+		e = &ErrorX{
+			Code:    CodeInternal,
+			Message: err.Error(),
+			Type:    T_Internal,
+			origin:  err,
+		}
 	}
 
 	e.addTrace()
