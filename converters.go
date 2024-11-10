@@ -63,7 +63,7 @@ func fromProto(pberr *errpb.ErrorX, serviceName string) *ErrorX {
 		Type:    Type(pberr.GetType()),
 		Details: details,
 		origin:  errors.New(pberr.GetMessage()),
-		trace:   pberr.GetTrace(),
+		trace:   fmt.Sprintf(">>> %s %s", serviceName, pberr.GetTrace()),
 	}
 
 	return err

@@ -3,6 +3,7 @@ package errx
 import (
 	"fmt"
 	"runtime"
+	"strings"
 )
 
 // Wrap wraps an error with an ErrorX.
@@ -68,14 +69,21 @@ func (e *ErrorX) addTrace() {
 		panic("could not get runtime.FuncForPC")
 	}
 
+	// Shorten the file path to make it more compact
 	_, filename := pathSplit(filepath)
 
-	callerInfo := fmt.Sprintf("%s:%d|%s", filename, line, fn.Name())
+	// Get the function name (this can be simplified)
+	funcName := fn.Name()
+
+	// Get the short function name (without the package path)
+	shortFuncName := funcName[strings.LastIndex(funcName, ".")+1:]
+
+	callerInfo := fmt.Sprintf("[%s:%d] %s", filename, line, shortFuncName)
 
 	if e.trace == "" {
 		e.trace = callerInfo
 	} else {
-		e.trace = fmt.Sprintf("%s ➡️ %s", e.trace, callerInfo)
+		e.trace = fmt.Sprintf("%s ➡️ %s", callerInfo, e.trace)
 	}
 }
 
