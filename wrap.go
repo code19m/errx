@@ -75,8 +75,8 @@ func (e *ErrorX) addTrace() {
 	// Get the function name (this can be simplified)
 	funcName := fn.Name()
 
-	// Get the short function name (without the package path)
-	shortFuncName := funcName[strings.LastIndex(funcName, ".")+1:]
+	// Get the short function name (without full package path)
+	shortFuncName := funcName[strings.LastIndex(funcName, "/")+1:]
 
 	callerInfo := fmt.Sprintf("[%s:%d] %s", filename, line, shortFuncName)
 
