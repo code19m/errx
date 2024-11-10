@@ -8,6 +8,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// FromGRPC converts a gRPC error to an ErrorX.
+// The serviceName parameter is used to prefix the details keys.
+// If the error is not a gRPC error, it will be wrapped in an internal error.
+// The error will have a trace of the stack trace at the moment of the conversion.
 func FromGRPC(err error, serviceName string) error {
 	if err == nil {
 		return nil
