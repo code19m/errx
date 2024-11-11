@@ -10,15 +10,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var (
-	serviceName = "SERVICE"
-)
-
-// SetServiceName sets the service name to be used in the error trace.
-func SetServiceName(name string) {
-	serviceName = name
-}
-
 // errto.GRPC is intended for use in gRPC server handlers to convert ErrorX instances to gRPC status errors.
 // If the error is nil, no response is written.
 func GRPC(err error) error {
@@ -42,7 +33,7 @@ func toStatus(err error) *status.Status {
 				Code:    e.Code,
 				Type:    int32(e.Type),
 				Details: e.Details,
-				Trace:   fmt.Sprintf("%s: %s", serviceName, e.Trace()),
+				Trace:   e.Trace(),
 			},
 		)
 		if dtErr == nil {
