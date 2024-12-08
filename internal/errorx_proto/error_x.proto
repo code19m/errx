@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package errorx_proto;
+
+option go_package = "../errorx_proto";
+
+message ErrorX {
+    string message = 1;
+    string code = 2;
+    int32 type = 3;
+    string trace = 4;
+    map<string, string> fields = 5;
+    map<string, string> details = 6;
+}

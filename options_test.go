@@ -1,0 +1,61 @@
+package errx_test
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/code19m/errx"
+)
+
+func TestOptions(t *testing.T) {
+	t.Run("with code", func(t *testing.T) {
+		err := errx.New("error", errx.WithCode("1234"))
+		e := err.(errx.ErrorX)
+		if e.Code() != "1234" {
+			t.Errorf("expected code 1234, got %v", e.Code())
+		}
+	})
+
+	t.Run("with trace", func(t *testing.T) {
+		err := errx.New("error", errx.WithTrace())
+		e := err.(errx.ErrorX)
+		if e.Trace() == "" {
+			t.Errorf("expected trace to be populated")
+		}
+	})
+}
+
+func TestWithPrefix(t *testing.T) {
+	t.Run("add prefix to error details and trace", func(t *testing.T) {
+		err := errx.New("error", errx.WithDetails(errx.M{"key": "value"}), errx.WithPrefix("SERVICE"))
+		e := err.(errx.ErrorX)
+		if !strings.HasPrefix(e.Trace(), ">>> SERVICE >>>") {
+			t.Errorf("expected trace to start with prefix, got: %v", e.Trace())
+		}
+		if _, ok := e.Details()["SERVICE.key"]; !ok {
+			t.Errorf("expected details to include prefixed key")
+		}
+	})
+}
+
+func TestWithDetails(t *testing.T) {
+	t.Run("merge new details with existing ones", func(t *testing.T) {
+		err := errx.New("error", errx.WithDetails(errx.M{"key": "value"}))
+		err = errx.Wrap(err, errx.WithDetails(errx.M{"key": "new_value"}))
+		e := err.(errx.ErrorX)
+		if e.Details()["key"] != "new_value | value" {
+			t.Errorf("expected merged details, got: %v", e.Details())
+		}
+	})
+}
+
+func TestWithFields(t *testing.T) {
+	t.Run("overwrite fields", func(t *testing.T) {
+		err := errx.New("error", errx.WithFields(errx.M{"field1": "error1"}))
+		err = errx.Wrap(err, errx.WithFields(errx.M{"field1": "error2"}))
+		e := err.(errx.ErrorX)
+		if e.Fields()["field1"] != "error2" {
+			t.Errorf("expected overwritten fields, got: %v", e.Fields()["field1"])
+		}
+	})
+}
