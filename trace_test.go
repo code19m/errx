@@ -9,7 +9,7 @@ import (
 
 func TestAddTrace(t *testing.T) {
 	t.Run("add trace to error", func(t *testing.T) {
-		err := errx.New("error", errx.WithTrace())
+		err := errx.New("error")
 		e := err.(errx.ErrorX)
 		if e.Trace() == "" {
 			t.Errorf("expected trace to be populated, got empty")
@@ -17,7 +17,7 @@ func TestAddTrace(t *testing.T) {
 	})
 
 	t.Run("verify trace format", func(t *testing.T) {
-		err := errx.New("error", errx.WithTrace())
+		err := errx.New("error")
 		e := err.(errx.ErrorX)
 		if !contains(e.Trace(), "trace_test.go") {
 			t.Errorf("expected trace to include filename, got: %v", e.Trace())

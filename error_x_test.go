@@ -1,6 +1,7 @@
 package errx_test
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -42,6 +43,16 @@ func TestWrap(t *testing.T) {
 		e := err.(errx.ErrorX)
 		if e.Error() != "[T_Internal: INTERNAL] - an external error" {
 			t.Errorf("unexpected wrapped error message: %v", e.Error())
+		}
+	})
+}
+
+func TestIs(t *testing.T) {
+	t.Run("check if error is wrapped", func(t *testing.T) {
+		originalErr := fmt.Errorf("an external error")
+		wrappedErr := errx.Wrap(originalErr)
+		if !errors.Is(wrappedErr, originalErr) {
+			t.Errorf("expected true, got false")
 		}
 	})
 }

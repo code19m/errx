@@ -1,6 +1,9 @@
 package errx
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // ErrorX represents a main interface of this package.
 // It extends the built-in error interface with additional methods
@@ -31,22 +34,19 @@ type ErrorX interface {
 	// Details provides additional debugging information about the error.
 	// This is intended for logging and troubleshooting purposes.
 	Details() M
+
+	// Is methos implements the standard errors.Is function.
+	// It reports whether any error in the error's tree matches the target.
+	Is(target error) bool
 }
 
 // New creates a new ErrorX with the given message and options.
 func New(msg string, opts ...OptionFunc) error {
-	e := &errorX{
-		code:  DefaultCode,
-		msg:   msg,
-		type_: DefaultType,
-	}
+	e := newDefault(msg)
 
 	// Apply options
-	for _, opt := range opts {
-		if opt != nil {
-			opt(e)
-		}
-	}
+	e.addTrace(2)
+	applyOpts(e, opts)
 
 	return e
 }
@@ -57,9 +57,6 @@ func New(msg string, opts ...OptionFunc) error {
 // enriching the error with additional information and a trace.
 //
 // It is designed to be used in the middle layers of an application.
-//
-// ***NOTE***: Do not use the WithTrace option with this function,
-// as a trace is added by default when using Wrap.
 func Wrap(err error, opts ...OptionFunc) error {
 	if err == nil {
 		return nil
@@ -67,20 +64,15 @@ func Wrap(err error, opts ...OptionFunc) error {
 
 	e, ok := err.(*errorX)
 	if !ok {
-		e = &errorX{
-			code:  DefaultCode,
-			msg:   err.Error(),
-			type_: DefaultType,
-		}
+		e = wrapFromError(err)
 	}
-	e.addTrace(2)
+
+	// Clone the error to avoid modifying the original
+	e = e.clone()
 
 	// Apply options
-	for _, opt := range opts {
-		if opt != nil {
-			opt(e)
-		}
-	}
+	e.addTrace(2)
+	applyOpts(e, opts)
 
 	return e
 }
@@ -93,6 +85,7 @@ type errorX struct {
 	fields  M
 	details M
 	trace   string
+	origin  error
 }
 
 func (e errorX) Error() string {
@@ -117,4 +110,53 @@ func (e errorX) Fields() M {
 
 func (e errorX) Details() M {
 	return e.details
+}
+
+func (e errorX) Is(target error) bool {
+	if target == nil {
+		return false
+	}
+	return e.origin == target
+}
+
+func (e *errorX) clone() *errorX {
+	return &errorX{
+		code:    e.code,
+		msg:     e.msg,
+		type_:   e.type_,
+		fields:  e.fields,
+		details: e.details,
+		trace:   e.trace,
+		origin:  e.origin,
+	}
+}
+
+func newDefault(msg string) *errorX {
+	return &errorX{
+		code:    DefaultCode,
+		msg:     msg,
+		type_:   DefaultType,
+		fields:  make(M),
+		details: make(M),
+		origin:  errors.New(msg),
+	}
+}
+
+func wrapFromError(err error) *errorX {
+	return &errorX{
+		code:    DefaultCode,
+		msg:     err.Error(),
+		type_:   DefaultType,
+		fields:  make(M),
+		details: make(M),
+		origin:  err,
+	}
+}
+
+func applyOpts(e *errorX, opts []OptionFunc) {
+	for _, opt := range opts {
+		if opt != nil {
+			opt(e)
+		}
+	}
 }

@@ -55,7 +55,6 @@ func main() {
 	err := errx.New("Resource not found",
 		errx.WithCode("NOT_FOUND"),                     // Set error code
 		errx.WithType(errx.T_NotFound),                 // Set error type
-		errx.WithTrace(),                               // Add trace
 		errx.WithDetails(errx.M{"resource_id": "123"}), // Add additional details
 		errx.WithFields(errx.M{"username": "invalid"}), // Add validation fields
 	)
@@ -158,7 +157,7 @@ func firstFunc() error {
 }
 
 func secondFunc() error {
-	return errx.New("some error occurred", errx.WithTrace())
+	return errx.New("some error occurred")
 }
 ```
 
@@ -199,7 +198,6 @@ The package defines several error types for categorizing errors:
 |---------------------|--------------------------------------|
 | `WithCode`          | Sets a machine-readable error code   |
 | `WithType`          | Sets the error type                  |
-| `WithTrace`         | Adds trace information               |
 | `WithPrefix`        | Adds a prefix to trace and details   |
 | `WithDetails`       | Adds debugging details               |
 | `WithFields`        | Sets validation-related fields       |

@@ -37,6 +37,20 @@ func TestFromGRPCError(t *testing.T) {
 		}
 	})
 
+	t.Run("convert gRPC error with no ErrorX detail", func(t *testing.T) {
+		grpcErr := status.Error(codes.AlreadyExists, "resource already exists")
+
+		err := errx.FromGRPCError(grpcErr)
+		e := err.(errx.ErrorX)
+
+		if e.Type() != errx.T_Conflict {
+			t.Errorf("expected type T_AlreadyExists, got %v", e.Type())
+		}
+		if e.Code() != errx.DefaultCode {
+			t.Errorf("expected default code, got %v", e.Code())
+		}
+	})
+
 	t.Run("handle non-gRPC error", func(t *testing.T) {
 		genericErr := errx.New("generic error")
 		err := errx.FromGRPCError(genericErr)

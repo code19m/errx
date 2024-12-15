@@ -7,7 +7,7 @@ import (
 	"github.com/code19m/errx"
 )
 
-func TestOptions(t *testing.T) {
+func TestWithCode(t *testing.T) {
 	t.Run("with code", func(t *testing.T) {
 		err := errx.New("error", errx.WithCode("1234"))
 		e := err.(errx.ErrorX)
@@ -15,12 +15,14 @@ func TestOptions(t *testing.T) {
 			t.Errorf("expected code 1234, got %v", e.Code())
 		}
 	})
+}
 
-	t.Run("with trace", func(t *testing.T) {
-		err := errx.New("error", errx.WithTrace())
+func TestWithType(t *testing.T) {
+	t.Run("with type", func(t *testing.T) {
+		err := errx.New("error", errx.WithType(errx.T_Validation))
 		e := err.(errx.ErrorX)
-		if e.Trace() == "" {
-			t.Errorf("expected trace to be populated")
+		if e.Type() != errx.T_Validation {
+			t.Errorf("expected type T_Validation, got %v", e.Type())
 		}
 	})
 }

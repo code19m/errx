@@ -21,14 +21,6 @@ func WithType(t Type) OptionFunc {
 	}
 }
 
-// WithTrace adds a trace to the error.
-// The trace is built in chronological order.
-func WithTrace() OptionFunc {
-	return func(e *errorX) {
-		e.addTrace(3)
-	}
-}
-
 // WithPrefix adds a prefix to the trace and all keys in the error's details,
 // specifically designed for error propagation between microservices,
 // particularly in gRPC communication.

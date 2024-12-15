@@ -1,6 +1,7 @@
 package errx
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/code19m/errx/internal/errorx_proto"
@@ -26,15 +27,15 @@ func ToGRPCError(err error, opts ...OptionFunc) error {
 
 	e, ok := err.(*errorX)
 	if !ok {
-		e = New(err.Error()).(*errorX)
+		e = newDefault(err.Error())
 	}
 
+	// Clone the error to avoid modifying the original
+	e = e.clone()
+
 	// Apply options
-	for _, opt := range opts {
-		if opt != nil {
-			opt(e)
-		}
-	}
+	e.addTrace(2)
+	applyOpts(e, opts)
 
 	st, derr := status.New(mapErrorToGRPCCode(e), e.Error()).WithDetails(toProto(e))
 	if derr != nil {
@@ -66,25 +67,25 @@ func FromGRPCError(err error, opts ...OptionFunc) error {
 
 	st, ok := status.FromError(err)
 	if !ok {
-		return New(err.Error(), opts...)
+		e := newDefault(err.Error())
+		e.addTrace(2)
+		applyOpts(e, opts)
+		return e
 	}
 
 	for _, detail := range st.Details() {
 		if pb, ok := detail.(*errorx_proto.ErrorX); ok {
 			e := fromProto(pb)
-
-			// Apply options
-			for _, opt := range opts {
-				if opt != nil {
-					opt(e)
-				}
-			}
-
+			e.addTrace(2)
+			applyOpts(e, opts)
 			return e
 		}
 	}
 
-	return New(err.Error(), opts...)
+	e := newFromStatus(st)
+	e.addTrace(2)
+	applyOpts(e, opts)
+	return e
 }
 
 // fromProto converts a proto error to an ErrorX.
@@ -96,6 +97,7 @@ func fromProto(pbErr *errorx_proto.ErrorX) *errorX {
 		fields:  M(pbErr.GetFields()),
 		details: M(pbErr.GetDetails()),
 		trace:   pbErr.GetTrace(),
+		origin:  errors.New(pbErr.GetMessage()),
 	}
 }
 
@@ -128,4 +130,29 @@ func mapErrorToGRPCCode(err *errorX) codes.Code {
 		return codes.PermissionDenied
 	}
 	return codes.Unknown
+}
+
+// newFromStatus creates a new ErrorX from a gRPC status.
+// This function is used when the gRPC status does not contain an ErrorX in its details.
+func newFromStatus(st *status.Status) *errorX {
+	rpcCodeMap := map[codes.Code]Type{
+		codes.Internal:         T_Internal,
+		codes.InvalidArgument:  T_Validation,
+		codes.NotFound:         T_NotFound,
+		codes.AlreadyExists:    T_Conflict,
+		codes.Unauthenticated:  T_Authentication,
+		codes.PermissionDenied: T_Forbidden,
+	}
+
+	if t, ok := rpcCodeMap[st.Code()]; ok {
+		return &errorX{
+			code:    DefaultCode,
+			msg:     st.Message(),
+			type_:   t,
+			fields:  make(M),
+			details: make(M),
+		}
+	}
+
+	return newDefault(st.String())
 }
