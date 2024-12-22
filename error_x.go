@@ -89,7 +89,7 @@ type errorX struct {
 }
 
 func (e errorX) Error() string {
-	return fmt.Sprintf("[%s: %s] - %s", e.type_, e.code, e.msg)
+	return fmt.Sprintf("[%s] - %s", e.code, e.msg)
 }
 
 func (e errorX) Code() string {
