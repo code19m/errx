@@ -16,7 +16,7 @@ func TestToGRPCError(t *testing.T) {
 		if !ok {
 			t.Errorf("expected GRPC status error")
 		}
-		if st.Message() != "[T_Internal: INTERNAL] - internal server error" {
+		if st.Message() != "internal server error" {
 			t.Errorf("unexpected GRPC error message: %v", st.Message())
 		}
 	})
@@ -26,9 +26,12 @@ func TestFromGRPCError(t *testing.T) {
 	t.Run("convert gRPC error to ErrorX", func(t *testing.T) {
 		grpcErr := errx.ToGRPCError(errx.New("not found", errx.WithCode("NOT_FOUND"), errx.WithType(errx.T_NotFound)))
 
-		err := errx.FromGRPCError(grpcErr)
+		ok, err := errx.FromGRPCError(grpcErr)
 		e := err.(errx.ErrorX)
 
+		if !ok {
+			t.Errorf("expected successful conversion")
+		}
 		if e.Type() != errx.T_NotFound {
 			t.Errorf("expected type T_NotFound, got %v", e.Type())
 		}
@@ -40,9 +43,12 @@ func TestFromGRPCError(t *testing.T) {
 	t.Run("convert gRPC error with no ErrorX detail", func(t *testing.T) {
 		grpcErr := status.Error(codes.AlreadyExists, "resource already exists")
 
-		err := errx.FromGRPCError(grpcErr)
+		ok, err := errx.FromGRPCError(grpcErr)
 		e := err.(errx.ErrorX)
 
+		if ok {
+			t.Errorf("expected unsuccessful conversion")
+		}
 		if e.Type() != errx.T_Conflict {
 			t.Errorf("expected type T_AlreadyExists, got %v", e.Type())
 		}
@@ -53,9 +59,12 @@ func TestFromGRPCError(t *testing.T) {
 
 	t.Run("handle non-gRPC error", func(t *testing.T) {
 		genericErr := errx.New("generic error")
-		err := errx.FromGRPCError(genericErr)
+		ok, err := errx.FromGRPCError(genericErr)
 		e := err.(errx.ErrorX)
 
+		if ok {
+			t.Errorf("expected unsuccessful conversion")
+		}
 		if e.Type() != errx.T_Internal {
 			t.Errorf("expected type T_Internal, got %v", e.Type())
 		}
@@ -65,7 +74,10 @@ func TestFromGRPCError(t *testing.T) {
 	})
 
 	t.Run("handle nil gRPC error", func(t *testing.T) {
-		err := errx.FromGRPCError(nil)
+		ok, err := errx.FromGRPCError(nil)
+		if ok {
+			t.Errorf("expected unsuccessful conversion")
+		}
 		if err != nil {
 			t.Errorf("expected nil, got %v", err)
 		}

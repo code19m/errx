@@ -2,7 +2,6 @@ package errx
 
 import (
 	"errors"
-	"fmt"
 )
 
 // ErrorX represents a main interface of this package.
@@ -89,7 +88,7 @@ type errorX struct {
 }
 
 func (e errorX) Error() string {
-	return fmt.Sprintf("[%s] - %s", e.code, e.msg)
+	return e.msg
 }
 
 func (e errorX) Code() string {

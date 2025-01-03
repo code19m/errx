@@ -43,7 +43,7 @@ func TestAsErrorX(t *testing.T) {
 	t.Run("convert to ErrorX from generic error", func(t *testing.T) {
 		err := fmt.Errorf("generic error")
 		e := errx.AsErrorX(err)
-		if e.Error() != "[T_Internal: INTERNAL] - generic error" {
+		if e.Error() != "generic error" {
 			t.Errorf("unexpected ErrorX message: %v", e.Error())
 		}
 	})

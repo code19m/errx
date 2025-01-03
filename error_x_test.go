@@ -15,7 +15,7 @@ func TestNew(t *testing.T) {
 		if !ok {
 			t.Errorf("expected *errx.ErrorX, got %T", err)
 		}
-		if e.Error() != "[T_Internal: INTERNAL] - test error" {
+		if e.Error() != "test error" {
 			t.Errorf("unexpected error message: %v", e.Error())
 		}
 	})
@@ -41,7 +41,7 @@ func TestWrap(t *testing.T) {
 		originalErr := fmt.Errorf("an external error")
 		err := errx.Wrap(originalErr)
 		e := err.(errx.ErrorX)
-		if e.Error() != "[T_Internal: INTERNAL] - an external error" {
+		if e.Error() != "an external error" {
 			t.Errorf("unexpected wrapped error message: %v", e.Error())
 		}
 	})

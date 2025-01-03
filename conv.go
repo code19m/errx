@@ -53,16 +53,17 @@ func ToGRPCError(err error, opts ...OptionFunc) error {
 
 // FromGRPCError converts a gRPC error into a custom error (ErrorX).
 //
-// It is intended for use in gRPC client side after making gRPC calls to convert gRPC status errors to ErrorX instances.
-// If the error is nil, no action is taken, so it is safe to call this function with a nil error.
+// It is intended for use on the gRPC client side after making gRPC calls, to convert gRPC status errors into ErrorX instances.
+// The function returns a boolean indicating whether the error was successfully converted from a proto message (`true`) or not (`false`).
 //
+// If the error is nil, no action is taken, and the function returns `false, nil`.
 // If the provided error does not contain an ErrorX detail, a default ErrorX instance is created.
 // Optional modifications can be applied via OptionFunc.
 //
-// ***NOTE***: Don't confuse this function with ToGRPCError, which is intended for use in gRPC server side.
-func FromGRPCError(err error, opts ...OptionFunc) error {
+// ***NOTE***: Don't confuse this function with ToGRPCError, which is intended for use on the gRPC server side.
+func FromGRPCError(err error, opts ...OptionFunc) (bool, error) {
 	if err == nil {
-		return nil
+		return false, nil
 	}
 
 	st, ok := status.FromError(err)
@@ -70,7 +71,7 @@ func FromGRPCError(err error, opts ...OptionFunc) error {
 		e := newDefault(err.Error())
 		e.addTrace(2)
 		applyOpts(e, opts)
-		return e
+		return false, e
 	}
 
 	for _, detail := range st.Details() {
@@ -78,14 +79,14 @@ func FromGRPCError(err error, opts ...OptionFunc) error {
 			e := fromProto(pb)
 			e.addTrace(2)
 			applyOpts(e, opts)
-			return e
+			return true, e
 		}
 	}
 
 	e := newFromStatus(st)
 	e.addTrace(2)
 	applyOpts(e, opts)
-	return e
+	return false, e
 }
 
 // fromProto converts a proto error to an ErrorX.
