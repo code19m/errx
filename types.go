@@ -24,7 +24,7 @@ const (
 
 const (
 	// DefaultCode is the default error code used when no code is provided.
-	DefaultCode = "INTERNAL"
+	DefaultCode = ""
 
 	// DefaultType is the default error type used when no type is provided.
 	DefaultType = T_Internal
