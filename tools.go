@@ -30,5 +30,6 @@ func AsErrorX(err error) ErrorX {
 	if e, ok := err.(ErrorX); ok {
 		return e
 	}
-	return Wrap(err).(ErrorX)
+
+	return wrapFromError(err)
 }
