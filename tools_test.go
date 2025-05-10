@@ -56,3 +56,63 @@ func TestAsErrorX(t *testing.T) {
 		}
 	})
 }
+
+func TestIsCodeIn(t *testing.T) {
+	t.Run("code is in the list", func(t *testing.T) {
+		err := errx.New("error", errx.WithCode("CODE_1"))
+		if !errx.IsCodeIn(err, "CODE_0", "CODE_1", "CODE_2") {
+			t.Errorf("expected true for code CODE_1 in the list")
+		}
+	})
+
+	t.Run("code is not in the list", func(t *testing.T) {
+		err := errx.New("error", errx.WithCode("CODE_3"))
+		if errx.IsCodeIn(err, "CODE_0", "CODE_1", "CODE_2") {
+			t.Errorf("expected false for code CODE_3 not in the list")
+		}
+	})
+
+	t.Run("default code for non-ErrorX error", func(t *testing.T) {
+		err := fmt.Errorf("generic error")
+		if !errx.IsCodeIn(err, errx.DefaultCode) {
+			t.Errorf("expected true for default code in the list")
+		}
+	})
+}
+
+func TestWrapWithTypeOnCodes(t *testing.T) {
+	t.Run("nil error returns nil", func(t *testing.T) {
+		var err error
+		result := errx.WrapWithTypeOnCodes(err, errx.T_Validation, "CODE_1")
+		if result != nil {
+			t.Errorf("expected nil for nil error, got %v", result)
+		}
+	})
+
+	t.Run("wrap with type when code matches", func(t *testing.T) {
+		err := errx.New("error", errx.WithCode("CODE_1"), errx.WithType(errx.T_Internal))
+		result := errx.WrapWithTypeOnCodes(err, errx.T_Validation, "CODE_1", "CODE_2")
+		
+		if errx.GetType(result) != errx.T_Validation {
+			t.Errorf("expected type T_Validation, got %v", errx.GetType(result))
+		}
+	})
+
+	t.Run("keep original type when code doesn't match", func(t *testing.T) {
+		err := errx.New("error", errx.WithCode("CODE_3"), errx.WithType(errx.T_Internal))
+		result := errx.WrapWithTypeOnCodes(err, errx.T_Validation, "CODE_1", "CODE_2")
+		
+		if errx.GetType(result) != errx.T_Internal {
+			t.Errorf("expected type T_Internal, got %v", errx.GetType(result))
+		}
+	})
+
+	t.Run("wrap non-ErrorX error", func(t *testing.T) {
+		err := fmt.Errorf("generic error")
+		result := errx.WrapWithTypeOnCodes(err, errx.T_Validation, errx.DefaultCode)
+		
+		if errx.GetType(result) != errx.T_Validation {
+			t.Errorf("expected type T_Validation, got %v", errx.GetType(result))
+		}
+	})
+}
