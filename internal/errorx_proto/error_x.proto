@@ -10,5 +10,4 @@ message ErrorX {
     int32 type = 3;
     string trace = 4;
     map<string, string> fields = 5;
-    map<string, string> details = 6;
 }

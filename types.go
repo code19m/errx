@@ -36,6 +36,9 @@ type Type uint8
 // M is a shorthand for a map of string key-value pairs.
 type M map[string]string
 
+// D is a shorthand for a map of string to any value pairs for detailed debugging information.
+type D map[string]any
+
 // String returns a string representation of the error type.
 func (t Type) String() string {
 	switch t {

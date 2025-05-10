@@ -32,7 +32,7 @@ type ErrorX interface {
 
 	// Details provides additional debugging information about the error.
 	// This is intended for logging and troubleshooting purposes.
-	Details() M
+	Details() D
 
 	// Is methos implements the standard errors.Is function.
 	// It reports whether any error in the error's tree matches the target.
@@ -82,7 +82,7 @@ type errorX struct {
 	msg     string
 	type_   Type
 	fields  M
-	details M
+	details D
 	trace   string
 	origin  error
 }
@@ -107,7 +107,7 @@ func (e errorX) Fields() M {
 	return e.fields
 }
 
-func (e errorX) Details() M {
+func (e errorX) Details() D {
 	return e.details
 }
 
@@ -136,7 +136,7 @@ func newDefault(msg string) *errorX {
 		msg:     msg,
 		type_:   DefaultType,
 		fields:  make(M),
-		details: make(M),
+		details: make(D),
 		origin:  errors.New(msg),
 	}
 }
@@ -147,7 +147,7 @@ func wrapFromError(err error) *errorX {
 		msg:     err.Error(),
 		type_:   DefaultType,
 		fields:  make(M),
-		details: make(M),
+		details: make(D),
 		origin:  err,
 	}
 }

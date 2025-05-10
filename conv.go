@@ -96,7 +96,7 @@ func fromProto(pbErr *errorx_proto.ErrorX) *errorX {
 		msg:     pbErr.GetMessage(),
 		type_:   Type(pbErr.GetType()),
 		fields:  M(pbErr.GetFields()),
-		details: M(pbErr.GetDetails()),
+		details: make(D),
 		trace:   pbErr.GetTrace(),
 		origin:  errors.New(pbErr.GetMessage()),
 	}
@@ -109,7 +109,6 @@ func toProto(e *errorX) *errorx_proto.ErrorX {
 		Message: e.Error(),
 		Type:    int32(e.Type()),
 		Fields:  e.Fields(),
-		Details: e.Details(),
 		Trace:   e.Trace(),
 	}
 }
@@ -151,7 +150,7 @@ func newFromStatus(st *status.Status) *errorX {
 			msg:     st.Message(),
 			type_:   t,
 			fields:  make(M),
-			details: make(M),
+			details: make(D),
 		}
 	}
 

@@ -31,7 +31,7 @@ func WithPrefix(prefix string) OptionFunc {
 	return func(e *errorX) {
 		e.trace = fmt.Sprintf(">>> %s >>> %s", prefix, e.trace)
 		if e.details != nil {
-			details := make(M)
+			details := make(D)
 			for k, v := range e.details {
 				details[fmt.Sprintf("%s.%s", prefix, k)] = v
 			}
@@ -42,16 +42,24 @@ func WithPrefix(prefix string) OptionFunc {
 
 // WithDetails adds additional contextual information (metadata) to the error.
 // If a key already exists, the new value is appended to the existing value,
-// with the new value appearing first, separated by a "|" character.
-func WithDetails(details M) OptionFunc {
+// with the new value appearing first, separated by a "|" character if both values are strings.
+func WithDetails(details D) OptionFunc {
 	return func(e *errorX) {
 		if e.details == nil {
-			e.details = make(M)
+			e.details = make(D)
 		}
 
 		for k, v := range details {
-			if val, ok := e.details[k]; ok {
-				e.details[k] = v + " | " + val
+			if existingVal, ok := e.details[k]; ok {
+				// If both values are strings, concatenate with a separator
+				if strVal, isStr := v.(string); isStr {
+					if strExistingVal, isExistingStr := existingVal.(string); isExistingStr {
+						e.details[k] = strVal + " | " + strExistingVal
+						continue
+					}
+				}
+				// Otherwise, just replace with the new value
+				e.details[k] = v
 			} else {
 				e.details[k] = v
 			}

@@ -29,7 +29,7 @@ func TestWithType(t *testing.T) {
 
 func TestWithPrefix(t *testing.T) {
 	t.Run("add prefix to error details and trace", func(t *testing.T) {
-		err := errx.New("error", errx.WithDetails(errx.M{"key": "value"}), errx.WithPrefix("SERVICE"))
+		err := errx.New("error", errx.WithDetails(errx.D{"key": "value"}), errx.WithPrefix("SERVICE"))
 		e := err.(errx.ErrorX)
 		if !strings.HasPrefix(e.Trace(), ">>> SERVICE >>>") {
 			t.Errorf("expected trace to start with prefix, got: %v", e.Trace())
@@ -41,12 +41,21 @@ func TestWithPrefix(t *testing.T) {
 }
 
 func TestWithDetails(t *testing.T) {
-	t.Run("merge new details with existing ones", func(t *testing.T) {
-		err := errx.New("error", errx.WithDetails(errx.M{"key": "value"}))
-		err = errx.Wrap(err, errx.WithDetails(errx.M{"key": "new_value"}))
+	t.Run("merge new string details with existing ones", func(t *testing.T) {
+		err := errx.New("error", errx.WithDetails(errx.D{"key": "value"}))
+		err = errx.Wrap(err, errx.WithDetails(errx.D{"key": "new_value"}))
 		e := err.(errx.ErrorX)
 		if e.Details()["key"] != "new_value | value" {
-			t.Errorf("expected merged details, got: %v", e.Details())
+			t.Errorf("expected merged details, got: %v", e.Details()["key"])
+		}
+	})
+
+	t.Run("non-string details are replaced", func(t *testing.T) {
+		err := errx.New("error", errx.WithDetails(errx.D{"key": 123}))
+		err = errx.Wrap(err, errx.WithDetails(errx.D{"key": 456}))
+		e := err.(errx.ErrorX)
+		if e.Details()["key"] != 456 {
+			t.Errorf("expected replaced details, got: %v", e.Details()["key"])
 		}
 	})
 }
