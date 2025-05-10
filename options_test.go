@@ -27,9 +27,9 @@ func TestWithType(t *testing.T) {
 	})
 }
 
-func TestWithPrefix(t *testing.T) {
+func TestWithTracePrefix(t *testing.T) {
 	t.Run("add prefix to error details and trace", func(t *testing.T) {
-		err := errx.New("error", errx.WithDetails(errx.D{"key": "value"}), errx.WithPrefix("SERVICE"))
+		err := errx.New("error", errx.WithDetails(errx.D{"key": "value"}), errx.WithTracePrefix("SERVICE"))
 		e := err.(errx.ErrorX)
 		if !strings.HasPrefix(e.Trace(), ">>> SERVICE >>>") {
 			t.Errorf("expected trace to start with prefix, got: %v", e.Trace())
@@ -40,7 +40,7 @@ func TestWithPrefix(t *testing.T) {
 	})
 
 	t.Run("add prefix to error without details", func(t *testing.T) {
-		err := errx.New("error", errx.WithPrefix("SERVICE"))
+		err := errx.New("error", errx.WithTracePrefix("SERVICE"))
 		e := err.(errx.ErrorX)
 		if !strings.HasPrefix(e.Trace(), ">>> SERVICE >>>") {
 			t.Errorf("expected trace to start with prefix, got: %v", e.Trace())

@@ -21,13 +21,12 @@ func WithType(t Type) OptionFunc {
 	}
 }
 
-// WithPrefix adds a prefix to the trace and all keys in the error's details,
+// WithTracePrefix adds a prefix to the trace,
 // specifically designed for error propagation between microservices,
 // particularly in gRPC communication.
 //
 // The trace is changed in the format ">>> prefix >>> %s".
-// The details keys are changed in the format "prefix.%s".
-func WithPrefix(prefix string) OptionFunc {
+func WithTracePrefix(prefix string) OptionFunc {
 	return func(e *errorX) {
 		e.trace = fmt.Sprintf(">>> %s >>> %s", prefix, e.trace)
 		if e.details != nil {
