@@ -89,3 +89,32 @@ func TestWithFields(t *testing.T) {
 		}
 	})
 }
+
+func TestWithRetriable(t *testing.T) {
+	t.Run("mark error as retriable", func(t *testing.T) {
+		err := errx.New("error", errx.WithRetriable())
+		e := err.(errx.ErrorX)
+		if !e.IsRetriable() {
+			t.Errorf("expected error to be retriable")
+		}
+	})
+
+	t.Run("default is non-retriable", func(t *testing.T) {
+		err := errx.New("error")
+		e := err.(errx.ErrorX)
+		if e.IsRetriable() {
+			t.Errorf("expected error to be non-retriable by default")
+		}
+	})
+
+	t.Run("retriable property is preserved when wrapping", func(t *testing.T) {
+		// Create a retriable error
+		originalErr := errx.New("error", errx.WithRetriable())
+		// Wrap it without changing the retriable flag
+		wrappedErr := errx.Wrap(originalErr)
+		e := wrappedErr.(errx.ErrorX)
+		if !e.IsRetriable() {
+			t.Errorf("expected wrapped error to preserve retriable property")
+		}
+	})
+}

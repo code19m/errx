@@ -76,3 +76,12 @@ func WithFields(fields M) OptionFunc {
 		e.fields = fields
 	}
 }
+
+// WithRetriable marks an error as retriable.
+// Retriable errors can be safely retried with appropriate backoff strategies.
+// This can be useful for transient errors like network issues or temporary service unavailability.
+func WithRetriable() OptionFunc {
+	return func(e *errorX) {
+		e.isRetriable = true
+	}
+}

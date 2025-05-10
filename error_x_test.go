@@ -110,3 +110,30 @@ func TestIs(t *testing.T) {
 		}
 	})
 }
+
+func TestIsRetriable(t *testing.T) {
+	t.Run("default is not retriable", func(t *testing.T) {
+		err := errx.New("test error")
+		e := err.(errx.ErrorX)
+		if e.IsRetriable() {
+			t.Errorf("expected error to be non-retriable by default")
+		}
+	})
+
+	t.Run("can be marked as retriable", func(t *testing.T) {
+		err := errx.New("test error", errx.WithRetriable())
+		e := err.(errx.ErrorX)
+		if !e.IsRetriable() {
+			t.Errorf("expected error to be retriable")
+		}
+	})
+
+	t.Run("wrapped standard error inherits retriable property", func(t *testing.T) {
+		standardErr := fmt.Errorf("standard error")
+		wrappedErr := errx.Wrap(standardErr, errx.WithRetriable())
+		e := wrappedErr.(errx.ErrorX)
+		if !e.IsRetriable() {
+			t.Errorf("expected wrapped standard error to be retriable")
+		}
+	})
+}
