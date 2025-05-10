@@ -38,6 +38,14 @@ func TestWithPrefix(t *testing.T) {
 			t.Errorf("expected details to include prefixed key")
 		}
 	})
+
+	t.Run("add prefix to error without details", func(t *testing.T) {
+		err := errx.New("error", errx.WithPrefix("SERVICE"))
+		e := err.(errx.ErrorX)
+		if !strings.HasPrefix(e.Trace(), ">>> SERVICE >>>") {
+			t.Errorf("expected trace to start with prefix, got: %v", e.Trace())
+		}
+	})
 }
 
 func TestWithDetails(t *testing.T) {
@@ -56,6 +64,17 @@ func TestWithDetails(t *testing.T) {
 		e := err.(errx.ErrorX)
 		if e.Details()["key"] != 456 {
 			t.Errorf("expected replaced details, got: %v", e.Details()["key"])
+		}
+	})
+
+	t.Run("add new details to nil details", func(t *testing.T) {
+		// Create an error that doesn't have any details yet
+		err := errx.New("error")
+		// Add details to it
+		err = errx.Wrap(err, errx.WithDetails(errx.D{"new": "detail"}))
+		e := err.(errx.ErrorX)
+		if e.Details()["new"] != "detail" {
+			t.Errorf("expected new detail to be added, got: %v", e.Details())
 		}
 	})
 }

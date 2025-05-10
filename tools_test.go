@@ -47,4 +47,12 @@ func TestAsErrorX(t *testing.T) {
 			t.Errorf("unexpected ErrorX message: %v", e.Error())
 		}
 	})
+
+	t.Run("convert from ErrorX stays the same", func(t *testing.T) {
+		originalErr := errx.New("already an ErrorX")
+		e := errx.AsErrorX(originalErr)
+		if e.Error() != "already an ErrorX" {
+			t.Errorf("unexpected ErrorX message: %v", e.Error())
+		}
+	})
 }
