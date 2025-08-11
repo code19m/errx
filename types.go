@@ -20,6 +20,9 @@ const (
 
 	// Forbidden errors occur when a user is not allowed to access a resource.
 	T_Forbidden
+
+	// Throttling errors occur when a user has sent too many requests in a given time frame.
+	T_Throttling
 )
 
 const (
@@ -54,6 +57,8 @@ func (t Type) String() string {
 		return "T_Authentication"
 	case T_Forbidden:
 		return "T_Forbidden"
+	case T_Throttling:
+		return "T_Throttling"
 	default:
 		return fmt.Sprintf("Unknown Type (%d)", t)
 	}

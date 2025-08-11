@@ -17,6 +17,7 @@ func TestTypeString(t *testing.T) {
 		{errx.T_Conflict, "T_Conflict"},
 		{errx.T_Authentication, "T_Authentication"},
 		{errx.T_Forbidden, "T_Forbidden"},
+		{errx.T_Throttling, "T_Throttling"},
 		{errx.Type(99), "Unknown Type (99)"},
 	}
 
