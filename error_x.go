@@ -37,10 +37,6 @@ type ErrorX interface {
 	// Is methos implements the standard errors.Is function.
 	// It reports whether any error in the error's tree matches the target.
 	Is(target error) bool
-
-	// IsRetriable returns whether the error is retriable.
-	// Retriable errors can be retried with backoff strategies.
-	IsRetriable() bool
 }
 
 // New creates a new ErrorX with the given message and options.
@@ -82,14 +78,13 @@ func Wrap(err error, opts ...OptionFunc) error {
 
 // errorX is a concrete implementation of the ErrorX interface.
 type errorX struct {
-	code        string
-	msg         string
-	type_       Type
-	fields      M
-	details     D
-	trace       string
-	origin      error
-	isRetriable bool
+	code    string
+	msg     string
+	type_   Type
+	fields  M
+	details D
+	trace   string
+	origin  error
 }
 
 func (e errorX) Error() string {
@@ -123,44 +118,37 @@ func (e errorX) Is(target error) bool {
 	return e.origin == target
 }
 
-func (e errorX) IsRetriable() bool {
-	return e.isRetriable
-}
-
 func (e *errorX) clone() *errorX {
 	return &errorX{
-		code:        e.code,
-		msg:         e.msg,
-		type_:       e.type_,
-		fields:      e.fields,
-		details:     e.details,
-		trace:       e.trace,
-		origin:      e.origin,
-		isRetriable: e.isRetriable,
+		code:    e.code,
+		msg:     e.msg,
+		type_:   e.type_,
+		fields:  e.fields,
+		details: e.details,
+		trace:   e.trace,
+		origin:  e.origin,
 	}
 }
 
 func newDefault(msg string) *errorX {
 	return &errorX{
-		code:        DefaultCode,
-		msg:         msg,
-		type_:       DefaultType,
-		fields:      make(M),
-		details:     make(D),
-		origin:      errors.New(msg),
-		isRetriable: false,
+		code:    DefaultCode,
+		msg:     msg,
+		type_:   DefaultType,
+		fields:  make(M),
+		details: make(D),
+		origin:  errors.New(msg),
 	}
 }
 
 func wrapFromError(err error) *errorX {
 	return &errorX{
-		code:        DefaultCode,
-		msg:         err.Error(),
-		type_:       DefaultType,
-		fields:      make(M),
-		details:     make(D),
-		origin:      err,
-		isRetriable: false,
+		code:    DefaultCode,
+		msg:     err.Error(),
+		type_:   DefaultType,
+		fields:  make(M),
+		details: make(D),
+		origin:  err,
 	}
 }
 
