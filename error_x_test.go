@@ -29,6 +29,20 @@ func TestNew(t *testing.T) {
 	})
 }
 
+func TestNewf(t *testing.T) {
+	t.Run("create new formatted error", func(t *testing.T) {
+		err := errx.Newf("error code: %d", 404)
+		e, ok := err.(errx.ErrorX)
+		if !ok {
+			t.Errorf("expected *errx.ErrorX, got %T", err)
+		}
+		expectedMsg := "error code: 404"
+		if e.Error() != expectedMsg {
+			t.Errorf("unexpected error message: got %v, want %v", e.Error(), expectedMsg)
+		}
+	})
+}
+
 func TestWrap(t *testing.T) {
 	t.Run("wrap nil error", func(t *testing.T) {
 		err := errx.Wrap(nil)

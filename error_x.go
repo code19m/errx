@@ -2,6 +2,7 @@ package errx
 
 import (
 	"errors"
+	"fmt"
 )
 
 // ErrorX represents a main interface of this package.
@@ -47,6 +48,13 @@ func New(msg string, opts ...OptionFunc) error {
 	e.addTrace(2)
 	applyOpts(e, opts)
 
+	return e
+}
+
+// Newf creates a new ErrorX with a formatted message.
+func Newf(format string, a ...any) error {
+	e := newDefault(fmt.Sprintf(format, a...))
+	e.addTrace(2)
 	return e
 }
 
