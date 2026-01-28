@@ -3,6 +3,7 @@ package errx
 import (
 	"errors"
 	"fmt"
+	"maps"
 )
 
 // ErrorX represents a main interface of this package.
@@ -127,12 +128,18 @@ func (e errorX) Is(target error) bool {
 }
 
 func (e *errorX) clone() *errorX {
+	fieldsClone := make(M)
+	maps.Copy(fieldsClone, e.fields)
+
+	detailsClone := make(D)
+	maps.Copy(detailsClone, e.details)
+
 	return &errorX{
 		code:    e.code,
 		msg:     e.msg,
 		type_:   e.type_,
-		fields:  e.fields,
-		details: e.details,
+		fields:  fieldsClone,
+		details: detailsClone,
 		trace:   e.trace,
 		origin:  e.origin,
 	}
