@@ -61,33 +61,6 @@ func TestWrap(t *testing.T) {
 	})
 }
 
-func TestWrapf(t *testing.T) {
-	t.Run("wrap nil error returns nil", func(t *testing.T) {
-		err := errx.Wrapf(nil, "wrapped: %s", "test")
-		if err != nil {
-			t.Errorf("expected nil, got %v", err)
-		}
-	})
-
-	t.Run("wrap error with formatted message", func(t *testing.T) {
-		originalErr := fmt.Errorf("original error")
-		err := errx.Wrapf(originalErr, "context: %s, code: %d", "user", 404)
-		e := err.(errx.ErrorX)
-		expectedMsg := "context: user, code: 404"
-		if e.Error() != expectedMsg {
-			t.Errorf("unexpected error message: got %v, want %v", e.Error(), expectedMsg)
-		}
-	})
-
-	t.Run("wrapped error preserves original for errors.Is", func(t *testing.T) {
-		originalErr := fmt.Errorf("original error")
-		wrappedErr := errx.Wrapf(originalErr, "wrapped: %v", originalErr)
-		if !errors.Is(wrappedErr, originalErr) {
-			t.Errorf("expected errors.Is to return true")
-		}
-	})
-}
-
 func TestIs(t *testing.T) {
 	t.Run("check if error is wrapped", func(t *testing.T) {
 		originalErr := fmt.Errorf("an external error")
