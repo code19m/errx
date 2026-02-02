@@ -85,6 +85,31 @@ func Wrap(err error, opts ...OptionFunc) error {
 	return e
 }
 
+// Wrapf wraps an error with a formatted message.
+// It is a replacement for fmt.Errorf and is intended for use in contexts
+// where other ErrorX fields (trace, details, etc.) are not important,
+// such as tests or simple error wrapping scenarios.
+// If err is nil, it returns nil.
+func Wrapf(err error, format string, a ...any) error {
+	if err == nil {
+		return nil
+	}
+
+	e, ok := err.(*errorX)
+	if !ok {
+		e = wrapFromError(err)
+	}
+
+	// Clone the error to avoid modifying the original
+	e = e.clone()
+
+	// Update message with formatted string
+	e.msg = fmt.Sprintf(format, a...)
+	e.addTrace(2)
+
+	return e
+}
+
 // errorX is a concrete implementation of the ErrorX interface.
 type errorX struct {
 	code    string
